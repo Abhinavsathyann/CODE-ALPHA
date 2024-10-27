@@ -1,0 +1,139 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #e0f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 350px;
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 25px;
+            color: #00796b;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #b0bec5;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #00796b;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #004d40;
+        }
+        .total {
+            margin-top: 20px;
+            font-size: 20px;
+            color: #00796b;
+        }
+        .expense-list {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .expense-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #e0f2f1;
+            border-radius: 8px;
+        }
+        .expense-item button {
+            background-color: #d32f2f;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .expense-item button:hover {
+            background-color: #b71c1c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Expense Tracker</h1>
+        <input type="text" id="expense-title" placeholder="Expense Title">
+        <input type="text" id="expense-amount" placeholder="Amount">
+        <button onclick="addExpense()">Add Expense</button>
+        <div class="total">Total: $<span id="total-amount">0.00</span></div>
+        <div class="expense-list" id="expense-list"></div>
+    </div>
+
+    <script>
+        let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+
+        function updateTotal() {
+            const totalAmount = expenses.reduce((total, expense) => total + parseFloat(expense.amount), 0);
+            document.getElementById('total-amount').innerText = totalAmount.toFixed(2);
+        }
+
+        function renderExpenses() {
+            const expenseList = document.getElementById('expense-list');
+            expenseList.innerHTML = '';
+            expenses.forEach((expense, index) => {
+                const expenseItem = document.createElement('div');
+                expenseItem.className = 'expense-item';
+                expenseItem.innerHTML = `
+                    <span>${expense.title}: $${expense.amount.toFixed(2)}</span>
+                    <button onclick="deleteExpense(${index})">Delete</button>
+                `;
+                expenseList.appendChild(expenseItem);
+            });
+            updateTotal();
+        }
+
+        function addExpense() {
+            const title = document.getElementById('expense-title').value;
+            const amount = document.getElementById('expense-amount').value;
+            if (title && amount && !isNaN(amount)) {
+                expenses.push({ title, amount: parseFloat(amount) });
+                localStorage.setItem('expenses', JSON.stringify(expenses));
+                renderExpenses();
+                document.getElementById('expense-title').value = '';
+                document.getElementById('expense-amount').value = '';
+            } else {
+                alert('Please enter a valid title and amount.');
+            }
+        }
+
+        function deleteExpense(index) {
+            expenses.splice(index, 1);
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+            renderExpenses();
+        }
+
+        window.onload = function() {
+            renderExpenses();
+        }
+    </script>
+</body>
+</html>
